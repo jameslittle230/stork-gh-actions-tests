@@ -72,6 +72,5 @@ jobs:
         with:
           formula-name: stork
           homebrew-tap: jameslittle230/homebrew-stork-tap
-          commit-message: ${{formulaName}} ${{version}}
         env:
           COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
