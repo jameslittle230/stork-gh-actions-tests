@@ -62,13 +62,33 @@ jobs:
           asset_path: ./target/release/stork
           asset_name: stork-latest-x86_64-apple-darwin
           asset_content_type: application/octet-stream
+  deb:
+    runs-on: ubuntu-latest
+    needs: [build-ub]
+    steps:
+      - name: create sample script
+        run: |
+          mkdir -p .debpkg/usr/bin
+          mkdir -p .debpkg/usr/lib/samplescript
+          echo -e "echo sample" > .debpkg/usr/bin/samplescript
+          chmod +x .debpkg/usr/bin/samplescript
+          echo -e "a=1" > .debpkg/usr/lib/samplescript/samplescript.conf
+      - name: Create package
+        uses: jiro4989/build-deb-action@v2
+        with:
+          package: samplescript
+          package_root: .debpkg
+          maintainer: your_name
+          version: ${{ github.ref }} # refs/tags/v*.*.*
+          arch: 'amd64'
+          desc: 'this is sample package.'
   homebrew:
     name: Bump Homebrew formula
     runs-on: ubuntu-latest
     needs: [build-macos]
     steps:
       - uses: mislav/bump-homebrew-formula-action@v1
-        if: "!contains(github.ref, '-')" # skip prereleases
+#         if: "!contains(github.ref, '-')" # skip prereleases
         with:
           formula-name: stork
           homebrew-tap: jameslittle230/homebrew-stork-tap
