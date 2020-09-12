@@ -5,26 +5,27 @@ on:
     - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
   
 
-name: Relase & Upload Build Artifact
+name: Upload Release Asset
 
 jobs:
   release:
+    name: Create Release
     runs-on: ubuntu-latest
     steps:
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
-    outputs: 
+      - id: create_release
+        name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with: 
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: true
+          prerelease: true
+    outputs:
       upload_url: ${{steps.create_release.outputs.upload_url}}
   build-ub:
-    name: Upload Release Asset - Ubuntu
+    name: Upload Release Asset (Ubuntu)
     runs-on: ubuntu-latest
     needs: [release]
     steps:
@@ -38,12 +39,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ needs.release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./target/release/stork
           asset_name: stork-latest-x86_64-unknown-linux-gnu
           asset_content_type: application/octet-stream
   build-macos:
-    name: Upload Release Asset - macOS
+    name: Upload Release Asset (macOS)
     runs-on: macos-latest
     needs: [release]
     steps:
@@ -57,7 +58,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ needs.release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./target/release/stork
-          asset_name: stork-latest-x86_64-unknown-linux-gnu
+          asset_name: stork-latest-x86_64-apple-darwin
           asset_content_type: application/octet-stream
+  homebrew:
+    name: Bump Homebrew formula
+    runs-on: ubuntu-latest
+    needs: [build-macos]
+    steps:
+      - uses: mislav/bump-homebrew-formula-action@v1
+        if: "!contains(github.ref, '-')" # skip prereleases
+        with:
+          formula-name: stork
+          homebrew-tap: jameslittle230/homebrew-stork-tap
+          commit-message: ${{formulaName}} ${{version}}
+        env:
+          COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
