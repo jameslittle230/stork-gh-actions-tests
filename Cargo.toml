@@ -1,0 +1,49 @@
+[package]
+name = "stork-search"
+version = "0.8.0"
+authors = ["James Little <littleguy23@gmail.com>"]
+edition = "2018"
+documentation = "https://stork-search.net/docs"
+homepage = "https://stork-search.net"
+description = "Impossibly fast web search, made for static sites."
+repository = "https://github.com/jameslittle230/stork"
+license = "Apache-2.0"
+keywords = ["wasm", "webassembly", "search", "javascript"]
+categories = ["wasm"]
+exclude = ['/dist/', 'node_modules/', '/test/', '/test-assets/',]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["test-server"]
+test-server = ["futures", "hyper", "tokio"]
+
+[dependencies]
+toml = "0.5"
+serde = { version = "1.0", features = ["derive"] }
+bincode = "1.2.1"
+rmp-serde = "0.14.3"
+serde_json = "1.0"
+console_error_panic_hook = "0.1.6"
+num-format = "0.4.0"
+rust-stemmers = "1.2.0"
+srtparse = "0.2.0"
+htmlescape = "0.3.1"
+scraper = "0.12.0"
+frontmatter = "0.4.0"
+markdown = "0.3.0"
+futures = {version = "0.3", optional = true}
+hyper = {version = "0.13", optional = true}
+tokio = { version = "0.2", features = ["full"], optional = true }
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+
+# wasm-opt is out of date in wasm-bindgen, so we have to manually
+# enable the "mutable globals" feature so wasm-opt doesn't reject
+# the wasm blob that gets generated.
+# See: https://github.com/rustwasm/wasm-pack/issues/886#issuecomment-667669802
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ["-Oz", "--enable-mutable-globals"]
+
+[profile.release]
+lto = true

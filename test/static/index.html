@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Federalist Search</title>
+    <link rel="stylesheet" href="/dark.css" />
+    <link rel="stylesheet" href="/basic.css" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>">
+    <style>
+      .search-wrap {
+        max-width: 550px;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .stork-wrapper {
+        margin-bottom: 3rem;
+      }
+
+      .stork-output-visible {
+        z-index: 200;
+      }
+
+      .subtitle {
+        margin: 0.8em;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.8em;
+      }
+      body {
+        background-color: lightgray;
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Test Page</h1>
+    <div class="search-wrap">
+      <div class="stork-wrapper-basic">
+        <p class="subtitle">Local index</p>
+        <input data-stork="federalist" placeholder="liberty" class="stork-input"></input>
+        <div data-stork="federalist-output" class="stork-output"></div>
+      </div>
+
+      <div style="background-color: #222; color: white; padding: 5em;">
+      
+      <div class="stork-wrapper-dark">
+        <p class="subtitle">Uploaded Index</p>
+        <input data-stork="federalist-prod" placeholder="liberty" class="stork-input"></input>
+        <div data-stork="federalist-prod-output" class="stork-output"></div>
+      </div>
+
+      </div>
+
+      <div class="stork-wrapper">
+        <p class="subtitle">3Blue1Brown</p>
+        <input data-stork="threeblue" placeholder="derivative" class="stork-input"></input>
+        <div data-stork="threeblue-output" class="stork-output"></div>
+      </div>
+    </div>
+
+    <script src="/stork.js"></script>
+    <script>
+      stork.register("federalist", "/federalist.st", {
+        showProgress: true,
+        showScores: true,
+        printIndexInfo: true,
+        onQueryUpdate: (query, results) => {console.log(query, results)},
+        onResultSelected: (query, result) => {
+          console.log("Fake analytics log...")
+          return new Promise(function(resolve) {
+            setTimeout(resolve, 2000);
+          });
+        }
+      });
+      
+      stork.register("federalist-prod", "https://files.stork-search.net/federalist.st", {
+        showProgress: true,
+        showScores: false,
+        printIndexInfo: true
+      });
+      
+      stork.register("threeblue", "/3b1b.st", {
+        showProgress: true,
+        showScores: true,
+        printIndexInfo: true
+      });
+    </script>
+  </body>
+</html>
